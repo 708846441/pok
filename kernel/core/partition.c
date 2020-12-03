@@ -204,6 +204,9 @@ pok_ret_t pok_partition_init ()
 #ifdef POK_CONFIG_PARTITIONS_PERIOD
       pok_partitions[i].period             = ((uint32_t[]) POK_CONFIG_PARTITIONS_PERIOD) [i];
 #endif
+#ifdef POK_CONFIG_PARTITIONS_DEADLINE
+      pok_partitions[i].deadline             = ((uint32_t[]) POK_CONFIG_PARTITIONS_DEADLINE) [i];
+#endif
       pok_partitions[i].thread_index      = 0;
       pok_partitions[i].thread_main       = 0;
       pok_partitions[i].current_thread    = IDLE_THREAD;

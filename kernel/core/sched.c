@@ -78,11 +78,11 @@ uint32_t	         current_thread = KERNEL_THREAD;
 
 void pok_sched_thread_switch (void);
 
-#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+#if defined (POK_NEEDS_SCHED_RMS_PARTITIONS) || defined (POK_NEEDS_SCHED_EDF_PARTITIONS)
 
 /**
- * This part of the code sort the partitions according to their
- * periods. This part is dedicated to the RMS scheduling algorithm.
+ * This part of the code sort the partitions
+ * This part is dedicated to scheduling algorithm.
  */
 void pok_partitions_sort()
 {
@@ -96,7 +96,13 @@ void pok_partitions_sort()
 	j=i-1;
 	while ( j>= 0 )
 	{
+#ifdef POK_NEEDS_SCHED_EDF_PARTITIONS
+		if(pok_partitions[pok_sched_slots_allocation[j]].deadline > pok_partitions[pok_sched_slots_allocation[max]].deadline)
+#elif defined POK_NEEDS_SCHED_RMS_PARTITIONS
 		if(pok_partitions[pok_sched_slots_allocation[j]].period > pok_partitions[pok_sched_slots_allocation[max]].period)
+#endif
+
+
 		{
 			max = j;
 		}
@@ -133,7 +139,7 @@ void pok_sched_init (void)
    uint64_t                      total_time;
    uint8_t                       slot;
 
-#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+#if defined (POK_NEEDS_SCHED_RMS_PARTITIONS) || defined (POK_NEEDS_SCHED_EDF_PARTITIONS)
 
    printf("pok_sched_slots_allocation before sort = ");
 
@@ -155,7 +161,7 @@ void pok_sched_init (void)
       total_time = total_time + pok_sched_slots[slot];
    }
 
-#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+#if defined (POK_NEEDS_SCHED_RMS_PARTITIONS) || defined (POK_NEEDS_SCHED_EDF_PARTITIONS)
 
    printf("pok_sched_slots_allocation after sort = ");
 

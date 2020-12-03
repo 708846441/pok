@@ -117,6 +117,10 @@ typedef struct
 
   uint32_t		lock_level;
   pok_start_condition_t	start_condition;
+
+#ifdef POK_CONFIG_PARTITIONS_DEADLINE
+  uint64_t     deadline;
+#endif
 } pok_partition_t;
 
 extern pok_partition_t pok_partitions[POK_CONFIG_NB_PARTITIONS];
