@@ -45,11 +45,11 @@ pok_thread_t		         pok_threads[POK_CONFIG_NB_THREADS];
 
 extern pok_partition_t     pok_partitions[POK_CONFIG_NB_PARTITIONS];
 
-#ifdef POK_NEEDS_SCHED_RMS
+#if defined (POK_NEEDS_SCHED_RMS) || defined (POK_NEEDS_SCHED_EDF)
 
 /**
- * This part of the code sort the threads according to their
- * periods. This part is dedicated to the RMS scheduling algorithm.
+ * This part of the code sort the threads
+ * This part is dedicated to scheduling algorithm.
  */
 void pok_thread_insert_sort(uint16_t index_low, uint16_t index_high)
 {
@@ -58,7 +58,11 @@ void pok_thread_insert_sort(uint16_t index_low, uint16_t index_high)
 
     val=pok_threads[i];
     j=i-1;
+#ifdef POK_NEEDS_SCHED_EDF
+    while ( j>= index_low && pok_threads[j].deadline > val.deadline)
+#elif defined POK_NEEDS_SCHED_RMS
     while ( j>= index_low && pok_threads[j].period > val.period)
+#endif
     {
         pok_threads[j+1] = pok_threads[j];
         j--;
@@ -214,9 +218,13 @@ pok_ret_t pok_partition_thread_create (uint32_t*                  thread_id,
    pok_threads[id].entry            = attr->entry;
    pok_threads[id].init_stack_addr  = stack_vaddr;
    *thread_id = id;
+#if defined (POK_NEEDS_SCHED_RMS) || defined (POK_NEEDS_SCHED_EDF)
 
-#ifdef POK_NEEDS_SCHED_RMS
+#ifdef POK_NEEDS_SCHED_EDF
+   if ((pok_partitions[partition_id].sched == POK_SCHED_EDF) && (id > pok_partitions[partition_id].thread_index_low))
+#elif defined POK_NEEDS_SCHED_RMS
    if ((pok_partitions[partition_id].sched == POK_SCHED_RMS) && (id > pok_partitions[partition_id].thread_index_low))
+#endif
    {
       pok_thread_insert_sort(pok_partitions[partition_id].thread_index_low+1,id);
    }
