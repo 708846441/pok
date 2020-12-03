@@ -33,13 +33,13 @@ int main ()
   ret = pok_sem_create(&sid , 0, 50, POK_SEMAPHORE_DISCIPLINE_FIFO);
   printf("[P1] pok_sem_create return=%d, mid=%d\n", ret, sid);
 
-  tattr.priority = 42;
+  tattr.period = 43;
   tattr.entry = pinger_job;
 
   ret = pok_thread_create(&tid , &tattr);
   printf("[P1] pok_thread_create (1) return=%d\n", ret);
 
-  tattr.priority = 42;
+  tattr.period = 42;
   tattr.entry = pinger_job2;
 
   ret = pok_thread_create(&tid , &tattr);
