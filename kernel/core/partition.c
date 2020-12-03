@@ -196,7 +196,9 @@ pok_ret_t pok_partition_init ()
 
       pok_partitions[i].thread_index_high = pok_partitions[i].thread_index_low + ((uint32_t[]) POK_CONFIG_PARTITIONS_NTHREADS) [i];
       pok_partitions[i].activation        = 0;
-      pok_partitions[i].period            = 0;
+#ifdef POK_CONFIG_PARTITIONS_PERIOD
+      pok_partitions[i].period             = ((uint32_t[]) POK_CONFIG_PARTITIONS_PERIOD) [i];
+#endif
       pok_partitions[i].thread_index      = 0;
       pok_partitions[i].thread_main       = 0;
       pok_partitions[i].current_thread    = IDLE_THREAD;

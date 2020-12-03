@@ -78,6 +78,46 @@ uint32_t	         current_thread = KERNEL_THREAD;
 
 void pok_sched_thread_switch (void);
 
+#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+
+/**
+ * This part of the code sort the partitions according to their
+ * periods. This part is dedicated to the RMS scheduling algorithm.
+ */
+void pok_partitions_sort()
+{
+    int max , i=POK_CONFIG_SCHEDULING_NBSLOTS-1,j;
+    uint8_t current;
+
+    while(i>=0)
+    {
+	current=pok_sched_slots_allocation[i];
+	max = i;
+	j=i-1;
+	while ( j>= 0 )
+	{
+		if(pok_partitions[pok_sched_slots_allocation[j]].period > pok_partitions[pok_sched_slots_allocation[max]].period)
+		{
+			max = j;
+		}
+		j--;
+	}
+	pok_sched_slots_allocation[i]=pok_sched_slots_allocation[max];
+	pok_sched_slots_allocation[max]=current;
+	i--;
+        printf("pok_sched_slots_allocation during sort = ");
+
+        for (int slot = 0 ; slot < POK_CONFIG_SCHEDULING_NBSLOTS ; slot++)
+        {
+           printf("%d \t",pok_sched_slots_allocation[slot]);
+        }
+        printf("\n");
+
+    }
+}
+#endif
+
+
 /**
  *\\brief Init scheduling service
  */
@@ -93,12 +133,40 @@ void pok_sched_init (void)
    uint64_t                      total_time;
    uint8_t                       slot;
 
+#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+
+   printf("pok_sched_slots_allocation before sort = ");
+
+   for (slot = 0 ; slot < POK_CONFIG_SCHEDULING_NBSLOTS ; slot++)
+   {
+      printf("%d \t",pok_sched_slots_allocation[slot]);
+   }
+   printf("\n");
+
+
+   pok_partitions_sort();
+
+#endif
+
    total_time = 0;
 
    for (slot = 0 ; slot < POK_CONFIG_SCHEDULING_NBSLOTS ; slot++)
    {
       total_time = total_time + pok_sched_slots[slot];
    }
+
+#ifdef POK_NEEDS_SCHED_RMS_PARTITIONS
+
+   printf("pok_sched_slots_allocation after sort = ");
+
+   for (slot = 0 ; slot < POK_CONFIG_SCHEDULING_NBSLOTS ; slot++)
+   {
+      total_time = total_time + pok_sched_slots[slot];
+      printf("%d \t",pok_sched_slots_allocation[slot]);
+   }
+   printf("\n");
+
+#endif
 
    if (total_time != POK_CONFIG_SCHEDULING_MAJOR_FRAME)
    {
